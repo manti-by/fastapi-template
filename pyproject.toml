@@ -56,6 +56,15 @@ ignore = [
     "B904",  # Allow raising exceptions without from e, for HTTPException
 ]
 
+[tool.ruff.lint.per-file-ignores]
+# Ignore "E402", "F403", "F405" (import violations) in __init__.py files.
+# Ignore "S" (flake8-bandit) and "N802" (function name should be lowercase) in tests and docs.
+# Ignore "RUF" (Ruff-specific rules) and "I" (isort) in migrations.
+"__init__.py" = ["E402", "F403", "F405"]
+"tests/*" = ["E402", "F403", "F405", "S", "N802", "N815"]
+"**/test*.py" = ["E402", "F403", "F405", "S", "N802"]
+"alembic/*" = ["N999", "RUF", "I"]
+
 [tool.ruff.lint.pycodestyle]
 ignore-overlong-task-comments = true
 
