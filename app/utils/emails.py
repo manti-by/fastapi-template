@@ -4,11 +4,13 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-import emails  # type: ignore
+import emails
 import jwt
 from app.core.config import settings
 from jinja2 import Template
 from jwt.exceptions import InvalidTokenError
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -31,7 +33,9 @@ def send_email(
     subject: str = "",
     html_content: str = "",
 ) -> None:
-    assert settings.emails_enabled, "no provided configuration for email variables"
+    if not settings.emails_enabled:
+        logger.warning("No provided configuration for email variables")
+        return
     message = emails.Message(
         subject=subject,
         html=html_content,

@@ -3,7 +3,7 @@ check:
 	pre-commit run
 
 test:
-	pytest tests/
+	pytest -W ignore::DeprecationWarning tests/
 
 pip:
 	pip install -r requirements.txt
@@ -11,3 +11,6 @@ pip:
 update:
 	pcu requirements.txt -u
 	pre-commit autoupdate
+
+migrate:
+	alembic upgrade head

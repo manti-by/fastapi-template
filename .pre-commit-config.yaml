@@ -26,9 +26,9 @@ repos:
     hooks:
     - id: bandit
       name: bandit
-      description: 'Bandit is a tool for finding common security issues in Python code'
       entry: bandit
       language: python
       language_version: python3.12
-      exclude: .+/tests/.+
       types: [ python ]
+      args: [ "-c", "pyproject.toml" ]
+      additional_dependencies: [ "bandit[toml]" ]

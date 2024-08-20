@@ -1,6 +1,10 @@
+[tool.bandit]
+exclude_dirs = ["tests"]
+tests = ["B101"]
+
 [tool.black]
 line-length = 120
-target_version = ['py312']
+target_version = ["py312"]
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -45,13 +49,14 @@ select = [
     "RUF"  # Ruff-specific rules
 ]
 ignore = [
+    "S101",  # assert used
     "E501",  # line too long, handled by black
     "B008",  # do not perform function calls in argument defaults
     "W191",  # indentation contains tabs
     "B904",  # Allow raising exceptions without from e, for HTTPException
 ]
 
-[tool.ruff.pycodestyle]
+[tool.ruff.lint.pycodestyle]
 ignore-overlong-task-comments = true
 
 [tool.ruff.lint.isort.sections]
