@@ -12,18 +12,15 @@ on:
 jobs:
 
   tests-and-checks:
-    name: Run tests
-
-    needs: checks
+    name: Run checks and tests
 
     runs-on: ubuntu-latest
 
     concurrency:
-      group: ${{ github.ref }}-tests
+      group: ${{ github.ref }}
       cancel-in-progress: true
 
     services:
-
       postgres:
         image: postgres:latest
         env:
@@ -32,12 +29,19 @@ jobs:
           POSTGRES_DB: fastapi
         ports:
           - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
-      redis:
-        image: redis:latest
-        ports:
-          - 6379:6379
-        options: --entrypoint redis-server
+    env:
+      DOMAIN: localhost
+      PROJECT_NAME: FastAPI
+      FIRST_SUPERUSER: fastapi
+      FIRST_SUPERUSER_PASSWORD: fastapi
+      ENVIRONMENT: local
+      SECRET_KEY: insecure-secret-key
+      POSTGRES_SERVER: localhost
+      POSTGRES_DB: fastapi
+      POSTGRES_USER: fastapi
+      POSTGRES_PASSWORD: fastapi
 
     steps:
       - name: Check out the repository
@@ -61,11 +65,19 @@ jobs:
       - name: Install requirements
         shell: bash
         run: |
-          pip install --system -r requirements.txt
+          pip install -r requirements.txt
+
+      - name: Run pre-commit hook
+        uses: pre-commit/action@v3.0.0
+
+      - name: Run migrations
+        run: |
+          alembic upgrade head
+        env:
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
 
       - name: Run Pytest suite
         run: |
-          pytest --disable-warnings app/tests/
+          pytest --disable-warnings tests/
         env:
-          DATABASE_URL: postgres://fastapi:fastapi@localhost:${{ job.services.postgres.ports[5432] }}/fastapi
-          REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
