@@ -1,0 +1,71 @@
+name: Tests and Checks
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+
+  tests-and-checks:
+    name: Run tests
+
+    needs: checks
+
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: ${{ github.ref }}-tests
+      cancel-in-progress: true
+
+    services:
+
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: fastapi
+          POSTGRES_PASSWORD: fastapi
+          POSTGRES_DB: fastapi
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+        options: --entrypoint redis-server
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+
+      - name: Install requirements
+        shell: bash
+        run: |
+          pip install --system -r requirements.txt
+
+      - name: Run Pytest suite
+        run: |
+          pytest --disable-warnings app/tests/
+        env:
+          DATABASE_URL: postgres://fastapi:fastapi@localhost:${{ job.services.postgres.ports[5432] }}/fastapi
+          REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}

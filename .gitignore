@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+.env
+.env.docker
+.python-version
+
+.idea/
+.vscode/
+.pytest_cache/
+
+data/
+static/
