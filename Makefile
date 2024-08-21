@@ -1,3 +1,6 @@
+init:
+	python -m app.utils.initial_data
+
 run:
 	fastapi run app/main.py
 
