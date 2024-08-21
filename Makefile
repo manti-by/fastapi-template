@@ -1,3 +1,6 @@
+run:
+	fastapi run app/main.py
+
 check:
 	git add .
 	pre-commit run

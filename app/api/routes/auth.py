@@ -20,8 +20,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 router = APIRouter()
 
 
-@router.post("/access-token/")
-def login_access_token(
+@router.post("/token/")
+async def get_auth_token(
     session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ) -> Token:
     """
@@ -31,9 +31,9 @@ def login_access_token(
         session=session, email=form_data.username, password=form_data.password
     )
     if not user:
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
+        raise HTTPException(status_code=400)
     elif not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=400)
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(
         access_token=security.create_access_token(
@@ -43,7 +43,7 @@ def login_access_token(
 
 
 @router.post("/test-token/", response_model=UserPublic)
-def test_token(current_user: CurrentUser) -> Any:
+async def test_token(current_user: CurrentUser) -> Any:
     """
     Test access token
     """
@@ -51,7 +51,7 @@ def test_token(current_user: CurrentUser) -> Any:
 
 
 @router.post("/password-recovery/{email}/")
-def recover_password(email: str, session: SessionDep) -> Message:
+async def recover_password(email: str, session: SessionDep) -> Message:
     """
     Password Recovery
     """
@@ -75,7 +75,7 @@ def recover_password(email: str, session: SessionDep) -> Message:
 
 
 @router.post("/reset-password/")
-def reset_password(session: SessionDep, body: NewPassword) -> Message:
+async def reset_password(session: SessionDep, body: NewPassword) -> Message:
     """
     Reset password
     """
@@ -102,7 +102,7 @@ def reset_password(session: SessionDep, body: NewPassword) -> Message:
     dependencies=[Depends(get_current_active_superuser)],
     response_class=HTMLResponse,
 )
-def recover_password_html_content(email: str, session: SessionDep) -> Any:
+async def recover_password_html_content(email: str, session: SessionDep) -> Any:
     """
     HTML Content for Password Recovery
     """

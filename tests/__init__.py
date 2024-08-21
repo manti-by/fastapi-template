@@ -1,0 +1,1 @@
+DEFAULT_PASSWORD = "pa55word"
