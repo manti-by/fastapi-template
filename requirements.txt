@@ -22,4 +22,4 @@ ruff>=0.6.1
 
 SQLAlchemy==2.0.32
 sqlmodel==0.0.21
-starlette==0.38.2
+starlette==0.39.0
